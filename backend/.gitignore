@@ -1,0 +1,17 @@
+# Rust build artifacts
+/target/
+
+# Database files
+*.sqlite
+*.db
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
