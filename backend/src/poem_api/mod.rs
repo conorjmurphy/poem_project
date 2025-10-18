@@ -98,6 +98,27 @@ impl PoemAPI {
         }
     }
 
+    #[oai(path = "/poems/author/:author", method = "get")]
+    async fn get_poems_by_author(&self, #[oai(name = "author")] author_name: Path<String>) -> PoemsApiResponse {
+        use diesel::prelude::*;
+        use crate::schema::poems::dsl::*;
+        
+        let connection = &mut match establish_connection() {
+            Ok(conn) => conn,
+            Err(_) => return PoemsApiResponse::InternalServerError,
+        };
+        
+        match poems
+            .filter(author.eq(&author_name.0))
+            .load::<Poem>(connection) {
+            Ok(results) => {
+                let poem_responses: Vec<PoemResponse> = results.into_iter().map(|p| p.into()).collect();
+                PoemsApiResponse::Ok(Json(poem_responses))
+            },
+            Err(_) => PoemsApiResponse::InternalServerError,
+        }
+    }
+
     #[oai(path = "/poems", method = "post")]
     async fn create_poem(&self, request: Json<CreatePoemRequest>) -> CreatePoemApiResponse {
         use diesel::prelude::*;
